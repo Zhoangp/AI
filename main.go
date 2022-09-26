@@ -12,12 +12,10 @@ var rows, cols [][]string
 type node struct {
 	data      attribute
 	value     string
-	listChild []child
+	listChild []node
+	listLeaf  []leaf
 }
-type child struct {
-	node node
-	leaf leaf
-}
+
 type leaf struct {
 	result string
 	value  string
@@ -48,15 +46,6 @@ func entropy(arr []cell) float64 {
 	}
 	sum = math.Round(sum*1000) / 1000
 	return sum
-}
-func findIndex(arr []string, x string) int {
-	for i, item := range arr {
-		if item == x {
-			return i
-
-		}
-	}
-	return 0
 }
 func informationGain(listAttributes []attribute) []attribute {
 	var arr [][][]cell
@@ -126,13 +115,12 @@ func max(arr []attribute, entropy float64) (int, attribute) {
 			pos = i
 		}
 	}
-
 	return pos, res
 }
-func getListAttribute(rows [][]string, cols [][]string) []attribute {
+func getListAttribute(x [][]string, y [][]string) []attribute {
 	var listAttributes []attribute
-	for i := 1; i < len(rows[0])-1; i++ {
-		listAttributes = append(listAttributes, attribute{name: rows[0][i], pos: i - 1, cells: filterAttribute(cols[i], cols[len(cols)-1])})
+	for i := 1; i < len(x[0])-1; i++ {
+		listAttributes = append(listAttributes, attribute{name: x[0][i], pos: i - 1, cells: filterAttribute(y[i], y[len(y)-1])})
 	}
 	return listAttributes
 }
@@ -165,63 +153,101 @@ func resetData(listAttributes []attribute, entropy float64, node node) [][]cell 
 	}
 	return list
 }
-func partition(list [][]cell, pos int, node *node) {
-	for index := range list {
-		var newArr [][]string
-		for i, row := range rows {
-			check := false
-			for j, item := range row {
-				if item == list[index][0].value {
-					pos = j
-					check = true
-					break
-				}
-			}
-			if check {
-				newArr = append(newArr, remove(rows[i], pos))
-			}
-		}
-		var newArr2 [][]string
-		for i := range newArr[0] {
-			var arrTemp []string
-			for j := range newArr {
-				arrTemp = append(arrTemp, newArr[j][i])
-			}
-			newArr2 = append(newArr2, arrTemp)
-		}
+func filterDataWithAttribute(nameAttribute string, value string, pos int, rows [][]string) [][]string {
+	var newArr [][]string
+	var rows2 [][]string
+	for _, row := range rows {
+		var rowTemp []string
+		rowTemp = append(rowTemp, row...)
+		rows2 = append(rows2, rowTemp)
 
-		inforD2 := filterAttribute(newArr2[len(newArr2)-1], newArr2[len(newArr2)-1])
-		var child child
-		if y := entropy(inforD2); y == 0 {
-			child.leaf.result = newArr2[len(newArr2)-1][0]
-			child.leaf.value = list[index][0].value
-		} else {
-			child.node.value = list[index][0].value
-		}
-		node.listChild = append(node.listChild, child)
 	}
+	for i, row := range rows2 {
+		check := false
+		for j, item := range row {
+			if item == value || item == nameAttribute {
+				pos = j
+				check = true
+				break
+			}
+		}
+		if check {
+			newArr = append(newArr, remove(rows2[i], pos))
+		}
+	}
+	return newArr
+}
+func rowToCol(rows [][]string) [][]string {
+	var cols [][]string
+	for i := range rows[0] {
+		var arrTemp []string
+		for j := range rows {
+			arrTemp = append(arrTemp, rows[j][i])
+		}
+		cols = append(cols, arrTemp)
+	}
+	return cols
+}
+func partition(list [][]cell, pos int, a *node) {
+
 }
 func printTree(node node) {
 	fmt.Printf("\t\t%s\n\n", node.data.name)
-	for _, child := range node.listChild {
-		if len(child.node.value) == 0 {
-			fmt.Printf("%-10s", child.leaf.value)
-		} else {
-			fmt.Printf("%-10s", child.node.value)
-
-		}
-	}
+	/* for _, leaf := range node.listLeaf {
+		fmt.Printf("(%-10s)", leaf.value)
+	} */
 	fmt.Println("")
-	for _, child := range node.listChild {
-		if len(child.node.value) == 0 {
-			fmt.Printf("%-10s", child.leaf.result)
-		} else {
-			fmt.Printf("%-10s", child.node.value)
 
+	for _, child := range node.listChild {
+		fmt.Printf("%-10s", child.value)
+		printTree(child)
+
+	}
+
+}
+func id3(n *node, rows [][]string, cols [][]string) {
+	if len(rows[0]) <= 2 {
+		return
+	}
+	listAttributes := getListAttribute(rows, cols)
+	arrResult := filterAttribute(cols[len(cols)-1], cols[len(cols)-1])
+	x := entropy(arrResult)
+	informationGain(listAttributes)
+	var pos int
+
+	pos, n.data = max(listAttributes, x)
+	list := resetData(listAttributes, x, *n)
+	for index := range list {
+		newArr := filterDataWithAttribute(n.data.name, list[index][0].value, pos, rows)
+
+		newArr2 := rowToCol(newArr)
+
+		for i, item := range newArr2 {
+			newArr2[i] = remove(item, 0)
+		}
+		inforD2 := filterAttribute(newArr2[len(newArr2)-1], newArr2[len(newArr2)-1])
+		if y := entropy(inforD2); y == 0 {
+			fmt.Println()
+			var child leaf
+			child.result = newArr2[len(newArr2)-1][0]
+			child.value = list[index][0].value
+			n.listLeaf = append(n.listLeaf, child)
+		} else {
+			var child node
+			child.value = list[index][0].value
+			id3(&child, newArr, newArr2)
+			n.listChild = append(n.listChild, child)
 		}
 	}
 }
-
+func printRows(rows [][]string) {
+	for _, row := range rows {
+		for _, item := range row {
+			fmt.Printf("%-10s| ", item)
+		}
+		fmt.Println()
+	}
+}
 func main() {
 	f, err := excelize.OpenFile("DataSet.xlsx")
 
@@ -237,27 +263,46 @@ func main() {
 
 	cols, _ = f.GetCols("Sheet2")
 	rows, _ = f.GetRows("Sheet2")
-	var root node
-	var pos int
-
 	//xóa hàng tên thuộc tính
 	for i, item := range cols {
 		cols[i] = remove(item, 0)
 	}
+	var root node
+	/* var pos int
 
-	// lọc data theo thuộc tính trả về một mảng gồm:
-	// Tên thuộc tính và số lần xuất hiện
-	arrResult := filterAttribute(cols[len(cols)-1], cols[len(cols)-1]) // Lọc tính entropy để phân lớp một mẫu trong data
-	// entropy
-	x := entropy(arrResult)
+		listAttributes := getListAttribute(rows, cols)
+		// lọc data theo thuộc tính trả về một mảng gồm:
+		// Tên thuộc tính và số lần xuất hiện
+		arrResult := filterAttribute(cols[len(cols)-1], cols[len(cols)-1]) // Lọc tính entropy để phân lớp một mẫu trong data
+		// entropy
+		x := entropy(arrResult)
 
-	//Lấy tên thuộc tính, trường, vị trí
-	listAttributes := getListAttribute(rows, cols)
+		//Lấy tên thuộc tính, trường, vị trí
+		//Tính infor cho cho listAttribute
+		informationGain(listAttributes)
+	````
+		pos, root.data = max(listAttributes, x)    //Chọn thuộc tính có informationGain lớn nhất để phân hoạch
+		list := resetData(listAttributes, x, root) // kết quả khi phân hoạch
+
+		partition(list, pos, &root)
+		fmt.Println(list) */
+	id3(&root, rows, cols)
+	//////////////////////////////////
+	/* z := filterDataWithAttribute(root.data.name, pos)
+	r := rowToCol(z)
+	z = append([][]string{remove(rows[0], pos+1)}, z...)
+
+	listAttributes = getListAttribute(z, r) */
+
 	//Tính infor cho cho listAttribute
-	informationGain(listAttributes)
 
-	pos, root.data = max(listAttributes, x)    //Chọn thuộc tính có informationGain lớn nhất để phân hoạch
-	list := resetData(listAttributes, x, root) // kết quả khi phân hoạch
-	partition(list, pos, &root)
-	//set lại dữ liệu sau khi phân hoạch
+	/*
+		 	var nodeTemp node
+			pos, nodeTemp.data = max(listAttributes, x)   //Chọn thuộc tính có informationGain lớn nhất để phân hoạch
+			list = resetData(listAttributes, x, nodeTemp) // kết quả khi phân hoạch
+
+			partition(list, pos, &nodeTemp)
+
+			root.listChild[0].listChild = append(root.listChild[0].listChild, nodeTemp)
+	*/
 }
