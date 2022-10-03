@@ -63,6 +63,37 @@ excel_file.addEventListener('change', (event) => {
 
 }); */
 
+const getOffset = (el) => {
+    const rect = el.getBoundingClientRect();
+    return {
+      left: rect.left + window.pageXOffset,
+      top: rect.top + window.pageYOffset,
+      width: rect.width || el.offsetWidth,
+      height: rect.height || el.offsetHeight
+    };
+  }
+  
+  const connect = (div1, div2, color, thickness) => {
+    const off1 = getOffset(div1);
+    const off2 = getOffset(div2);
+  
+    const x1 = off1.left + off1.width;
+    const y1 = off1.top + off1.height;
+  
+    const x2 = off2.left + off2.width;
+    const y2 = off2.top;
+  
+    const length = Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+  
+    const cx = ((x1 + x2) / 2) - (length / 2);
+    const cy = ((y1 + y2) / 2) - (thickness / 2);
+  
+    const angle = Math.atan2((y1 - y2), (x1 - x2)) * (180 / Math.PI);
+  
+    const htmlLine = "<div style='padding:0px; margin:0px; height:" + thickness + "px; background-color:" + color + "; line-height:1px; position:absolute; left:" + cx + "px; top:" + cy + "px; width:" + length + "px; -moz-transform:rotate(" + angle + "deg); -webkit-transform:rotate(" + angle + "deg); -o-transform:rotate(" + angle + "deg); -ms-transform:rotate(" + angle + "deg); transform:rotate(" + angle + "deg);' />";
+  
+    document.body.innerHTML += htmlLine;
+  }
 var examples = [
     {day:'D1',outlook:'Sunny', temp:'Hot', humidity:'High', wind: 'Weak',play:'No'},
     {day:'D2',outlook:'Sunny', temp:'Hot', humidity:'High', wind: 'Strong',play:'No'},
@@ -79,16 +110,54 @@ var examples = [
     {day:'D13',outlook:'Overcast', temp:'Hot', humidity:'Normal', wind: 'Weak',play:'Yes'},
     {day:'D14',outlook:'Rain', temp:'Mild', humidity:'High', wind: 'Strong',play:'No'}
     ];
+var ex2 = [
+    {ten: "Hoa", MauToc: "Den", ChieuCao: "TB", CanNang: "Nhe", DungThuoc: "Khong", KetQua: "BiChay"},
+    {ten: "Lan", MauToc:	"Den", ChieuCao:	"Cao", CanNang: "Vua", DungThuoc:	"Co", KetQua: 	"KhongChay"},
+    {ten: "Xuân", MauToc:	"Ram", ChieuCao:	"Thap", CanNang:	"Vua", DungThuoc:	"Co", KetQua: 	"KhongChay"},
+    {ten: "Hạ", MauToc:	"Den", ChieuCao:	"Thap", CanNang:	"Vua", DungThuoc:	"Khong", KetQua: 	"BiChay"},
+    {ten: "Thu", MauToc:	"Bac", ChieuCao:	"TB", CanNang:	"Nang", DungThuoc:	"Khong", KetQua: 	"BiChay"},
+    {ten: "Đông", MauToc:	"Ram", ChieuCao:	"Cao", CanNang: "Nang", DungThuoc:	"Khong", KetQua: 	"KhongChay"},
+    {ten: "Mơ", MauToc:	"Ram", ChieuCao:	"TB", CanNang:	"Nang", DungThuoc:	"Khong", KetQua: 	"KhongChay"},
+    {ten: "Đào", MauToc:	"Den", ChieuCao:	"Thap", CanNang:	"Nhe", DungThuoc:	"Co", KetQua: 	"KhongChay"}
 
-var features = ['outlook', 'temp', 'humidity', 'wind'];
-const res = [{play: "Yes"}, {play: "No"}]
+]
+var ex3 = [
+{ID: "1",	Age: "Young"  	, Income: "High",    	Student: "No",	Credit: "Fair"     	 , Buys: "No"},
+{ID: "2",	Age: "Young"  	, Income: "High",    	Student: "No",	Credit: "Excellent"     	 , Buys: "No"},
+{ID: "3",	Age: "Midlle"  	, Income: "High",    	Student: "No",	Credit: "Fair"     	 , Buys: "Yes"},
+{ID: "4",	Age: "Old"  	, Income: "Medium",    	Student: "No",	Credit: "Fair"     	 , Buys: "Yes"},
+{ID: "5",	Age: "Old"  	, Income: "Low",    	Student: "Yes",	Credit: "Fair"     	 , Buys: "Yes"},
+{ID: "6",	Age: "Old"  	, Income: "Low",    	Student: "Yes",	Credit: "Excellent"     	 , Buys: "No"},
+{ID: "7",	Age: "Midlle"  	, Income: "Low",    	Student: "Yes",	Credit: "Excellent"     	 , Buys: "Yes"},
+{ID: "8",	Age: "Young"  	, Income: "Medium",    	Student: "No",	Credit: "Fair"     	 , Buys: "No"},
+{ID: "9",	Age: "Young"  	, Income: "Low",    	Student: "Yes",	Credit: "Fair"     	 , Buys: "Yes"},
+{ID: "10",	Age: "Old"  	, Income: "Medium",    	Student: "Yes",	Credit: "Fair"     	 , Buys: "Yes"},
+{ID: "11",	Age: "Young"  	, Income: "Medium",    	Student: "Yes",	Credit: "Excellent"     	 , Buys: "Yes"},
+{ID: "12",	Age: "Midlle"  	, Income: "Medium",    	Student: "No",	Credit: "Excellent"     	 , Buys: "Yes"},
+{ID: "13",	Age: "Midlle"  	, Income: "High",    	Student: "Yes",	Credit: "Fair"     	 , Buys: "Yes"},
+{ID: "14",	Age: "Old"  	, Income: "Medium",    	Student: "No",	Credit: "Excellent"     	 , Buys: "No"},
+]
+
+
+//ar features = ['outlook', 'temp', 'humidity', 'wind'];
+
 const entropy = (arr) => {
+    let key
+    let value
+    let res = new Array()
+    for(let i = 0; i < arr.length; i++) {
+        key = Object.keys(arr[i]).pop()
+        value = Object.values(arr[i]).pop()
+    res.push({[key]: value})
+}
+    res = [...new Map(res.map(item =>[item[key], item])).values()];
+    console.log(res)
     let e = 0;
     const total = arr.length;
     for(let i = 0; i < res.length; i++) {
         let count = 0
         for (const item of arr) {
-            if(item.play == res[i].play) {
+            if(item[key] == res[i][key]) {
                 count++;
             }
         }
@@ -111,9 +180,10 @@ const inforGain = (arr, attribute) => {
         let arrTemp = arr.filter(x => x[attribute] == item)
         let e = entropy(arrTemp)
         inforGain += (arrTemp.length/total) * e
+        console.log(e)
         if(e == 0) {
             x = arr.filter(i => i[attribute] == item)[0]
-            a = {name: item, infor: e, res: x.play}
+            a = {name: item, infor: e, res: x[Object.keys(x)[Object.keys(x).length - 1]]}
 
         }
         else {
@@ -124,7 +194,7 @@ const inforGain = (arr, attribute) => {
     }
     return {inforGain: Math.round(inforGain * 1000)/1000, list: listFeatures}
 }
-const id3 = (arr) => {  
+const id3 = (arr, nameClass) => {  
     let index = 0
     let max = -1;
     let attribute
@@ -141,22 +211,22 @@ const id3 = (arr) => {
         index++
     }
     console.log(attribute)
-    let s =  `<div class="node">${attribute.nameAttribute}</div>`
-    document.querySelector(".tree").innerHTML += s
-    document.querySelector(`.tree`).innerHTML += `<div class="node ${attribute.nameAttribute}"></div>`
-    for(let i of attribute.listFeatures) {
-        document.querySelector(`.${attribute.nameAttribute}`).innerHTML += `<div class="child ${i.name}">${i.name}</div>`
 
+    document.querySelector(`.${nameClass}`).innerHTML +=  `<div class="node"><p>${attribute.nameAttribute}</p></div>`
+    document.querySelector(`.${nameClass}`).innerHTML += `<div class="node ${attribute.nameAttribute}"></div>`
+
+    for(let i of attribute.listFeatures) {
+        document.querySelector(`.${attribute.nameAttribute}`).innerHTML += `<div class="child ${i.name}"><div class="node"><button>${i.name}</button></div></div>`
         arrNext = (arr.filter(item => item[attribute.nameAttribute] == i.name))
         arrNext.forEach(e => {
             delete e[attribute.nameAttribute]
         })
         if(i.infor == 0) {
-            document.querySelector(`.${i.name}`).innerHTML += `<div>${i.res}</div>`
+            document.querySelector(`.${i.name}`).innerHTML += `<div><span>${i.res}</span></div>`
         }
         else {   
             console.log(i)
-            id3(arrNext)
+            id3(arrNext, i.name)
 
         }
     }
@@ -168,7 +238,7 @@ const abc = [{day: 'D1', temp: 'Hot', humidity: 'High', wind: 'Weak', play: 'No'
 {day: 'D8', temp: 'Mild', humidity: 'High', wind: 'Weak', play: 'No'},
 {day: 'D9', temp: 'Cool', humidity: 'Normal', wind: 'Weak', play: 'Yes'},
 {day: 'D11', temp: 'Mild', humidity: 'Normal', wind: 'Strong', play: 'Yes'}]
-id3(examples)
+id3(ex2, 'tree')
 
 function unique(arr) {
     var newArr = []
@@ -181,5 +251,7 @@ const transpose = (matrix) => {
     let [row] = matrix
     return row.map((value, column) => value)
 }
+
+
 
 

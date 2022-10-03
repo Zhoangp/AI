@@ -7,5 +7,39 @@
     justify-content: center;
 }
  .child {
-    margin: 50px;
+    margin: 40px;
 }
+h1 {
+    text-align: center;
+    margin-bottom: 50px;
+}
+button {
+    padding: 10px 15px;
+    border: 1px solid #3f4871;
+    border-radius: 10px;
+    background-color: #142052;
+    color: white;
+}
+span {
+    color: #00e77f;
+    margin-top: 25px;
+    display: block;
+    text-align: center;
+    padding: 10px 15px;
+    border: 1px solid #3f4871;
+    border-radius: 10px;
+    background-color: #142052;
+}
+p {
+    margin-top: 25px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    background-color: #142052;
+    color: #1bc9ff;
+    
+}
+body {
+    font-size: 20px;
+}
+
+
