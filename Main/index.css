@@ -1,0 +1,11 @@
+.container {
+    display: flex;
+    justify-content: center;
+}
+ .node {
+    display: flex;
+    justify-content: center;
+}
+ .child {
+    margin: 50px;
+}
