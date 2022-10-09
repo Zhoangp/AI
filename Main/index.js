@@ -62,13 +62,10 @@ const id3 = (arr, nameClass) => {
     let max = -1;
     let attribute
     let e = entropy(arr)
-
+    
     for (let item in arr[0]) {
         if (index != 0 && index != Object.keys(arr[0]).length - 1) {
-            let {
-                inforGain: value,
-                list
-            } = inforGain(arr, item)
+            let {inforGain: value,list} = inforGain(arr, item)
             if (max <= (e - value)) {
                 max = e - value
                 attribute = {
@@ -79,18 +76,19 @@ const id3 = (arr, nameClass) => {
         }
         index++
     }
-    document.querySelector(`.${nameClass}`).innerHTML += `<div class="node"><p>${attribute.nameAttribute}</p></div>`
-    document.querySelector(`.${nameClass}`).innerHTML += `<div class="node ${attribute.nameAttribute}"></div>`
+
+    document.querySelector(`.${nameClass}`).innerHTML += `<ul><li><div class="attribute">${attribute.nameAttribute}</div><ul class=${attribute.nameAttribute}></ul></li></ul>`
     for (let i of attribute.listFeatures) {
-        document.querySelector(`.${attribute.nameAttribute}`).innerHTML += `<div class="child ${i.name}"><div class="node"><button>${i.name}</button></div></div>`
+       document.querySelector(`.${attribute.nameAttribute}`).innerHTML += `<li class="child ${i.name}"><div class="node">${i.name}</div></li>`
         arrNext = (arr.filter(item => item[attribute.nameAttribute] == i.name))
         arrNext.forEach(e => {
             delete e[attribute.nameAttribute]
         })
         if (i.infor == 0) {
-            document.querySelector(`.${i.name}`).innerHTML += `<div><span>${i.res}</span></div>`
+            document.querySelector(`.${i.name}`).innerHTML += `<br><div style="margin-top: 10px"><span>${i.res}</span></div>`
         } else {
             id3(arrNext, i.name)
+
         }
     }
 
@@ -100,14 +98,6 @@ const excel_file = document.getElementById('excel_file');
 excel_file.addEventListener('change', (event) => {
 let dataset = new Array()
     document.querySelector(".tree").innerHTML = ""
-    console.log(document.querySelector(".tree").innerHTML)
-    if (!['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'].includes(event.target.files[0].type)) {
-        document.getElementById('excel_data').innerHTML = '<div class="alert alert-danger">Only .xlsx or .xls file format are allowed</div>';
-
-        excel_file.value = '';
-
-        return false;
-    }
     var reader = new FileReader();
     reader.readAsArrayBuffer(event.target.files[0]);
     reader.onload = function (event) {
@@ -123,7 +113,6 @@ let dataset = new Array()
         ///////////////////////////////////////
         if (sheet_data.length > 0) {
             let listKey = sheet_data[0]
-
             for (let i = 1; i < sheet_data.length; i++) {
                 let object = {}
                 for (let j = 0; j < sheet_data[i].length; j++) {
@@ -131,44 +120,11 @@ let dataset = new Array()
                 }
                 dataset.push(object)
             }
-            console.log(dataset)
             id3(dataset, 'tree')
 
-            /*  sheet_dataReverse = transpose(sheet_data)
-             var table_output = '<table class="table table-striped table-bordered">';
-
-             for(var row = 0; row < sheet_data.length; row++)
-             {
-
-                 table_output += '<tr>';
-
-                 for(var cell = 0; cell < sheet_data[row].length; cell++)
-                 {
-
-                     if(row == 0)
-                     {
-
-                         table_output += '<th>'+sheet_data[row][cell]+'</th>';
-
-                     }
-                     else
-                     {
-
-                         table_output += '<td>'+sheet_data[row][cell]+'</td>';
-
-                     }
-
-                 }
-
-                 table_output += '</tr>';
-
-             }
-
-             table_output += '</table>';
-
-             document.getElementById('excel_data').innerHTML = table_output; */
         }
-
-        excel_file.value = '';
     }
 });
+setTimeout(function() {
+    console.log("Good Night!");
+  }, 1000);
