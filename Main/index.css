@@ -58,18 +58,35 @@ h1 {
     border-radius: 5px;
     transition: all 0.5s;
 }
-.tree li div:hover, .tree li div:hover+ul li div {
+/* .tree li div:hover, .tree li div:hover+ul li div {
     background:white;
     color: black;
-}
+} */
 span {
     margin-top: 10px;
     color: #00e77f;
-
+}
+.leaf {
+    color: #00e77f !important;
+    
 }
 .node span {
     color: #00c1ff
 }
 .attribute {
     color: #09a7db !important;
+}
+.content .item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+h1 {
+    margin: 2rem
+}
+.value {
+    background:none !important;
+    color: black !important;
+    border: none  !important
 }
