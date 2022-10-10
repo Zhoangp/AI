@@ -57,7 +57,6 @@ const inforGain = (arr, attribute) => {
     }
 }
 const id3 = (arr, nameClass, parent) => {
-        let tree = new Object();
     /////////////////////////////////////////
         let table = '<div class="item" style="margin-top: 20px">'
         let col = 'Xét tập dữ liệu D sau <table style="width: 30%" class="table table-striped table-bordered"><tr>'
@@ -102,9 +101,7 @@ const id3 = (arr, nameClass, parent) => {
             }
             index++
         } 
-        tree['attribute'] = new Object()
-        tree['attribute']['nameAttribute'] = attribute.nameAttribute
-        tree['attribute']['listValues'] = new Array()
+  
 
         
         
