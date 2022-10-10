@@ -114,7 +114,6 @@ const id3 = (arr, nameClass, parent) => {
     /////////////////////////////////////////
         let listValue = 'Các giá trị của thuộc tính phân hoạch <table style="width: 20%" class="table table-striped table-bordered"><tbody><tr><th>Giá trị</th><th>Entropy</th><th>Class</th></tr>'
         for (let i = 0; i < attribute.listFeatures.length; i++) {
-            tree['attribute']['listValues'].push(attribute.listFeatures[i].name)
             listValue +=  `<tr><td>${attribute.listFeatures[i].name}</td>  <td>${attribute.listFeatures[i].infor}</td> <td>${attribute.listFeatures[i].res}</td></tr> </tr>`
            
         }
